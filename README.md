@@ -24,6 +24,6 @@ cd BFI/
 ```
 
 
-## Screenshot
+## Screenshots
 ![](help.png)
 ![](repl.png)
