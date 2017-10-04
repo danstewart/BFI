@@ -11,6 +11,13 @@ cd BFI/
 ```
 
 
+## Dependencies
+- [List::Util](https://metacpan.org/pod/List::Util)
+- [List::MoreUtils](https://metacpan.org/pod/List::MoreUtils)
+- [Term::ReadKey](https://metacpan.org/pod/Term::ReadKey)
+- [Exporter](https://metacpan.org/pod/Exporter)
+
+
 ## Brainfuck Instructions
 ```
 + : increment current cell
