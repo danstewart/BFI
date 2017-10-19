@@ -5,7 +5,6 @@ package BFI;
 use strict;
 use warnings;
 use List::Util qw/max/;
-use List::MoreUtils qw/any/;
 
 use Exporter qw/import/;
 our @EXPORT_OK = qw/execute displaycells resetcells/;
@@ -58,7 +57,7 @@ sub execute {
 			next;
 	  }
 
-	  if (any { $_ eq $command } keys %symbolmap){
+	  if ($symbolmap{$command}){
 		  $symbolmap{$command}->();
 	  } elsif ($command eq '[') {
 			if ($cells{$pos}){
