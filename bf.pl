@@ -5,7 +5,6 @@ use warnings;
 use lib 'lib';
 use BFI qw/execute displaycells resetcells/;
 use Term::ReadKey;
-use List::MoreUtils qw(any);
 
 # TODO: the displaycells sub probably belongs
 # here rather than in the BFI package.
@@ -33,7 +32,7 @@ sub repl {
 	# TODO: Add a marker for the current cell (Will be a change to displaycells)
 	my $key = "";
 	my $keyhistory = "";
-	my @validkeys = ('+', '-', '>', '<', '.', ',');
+	my %validkeys = map { $_ => 1} ('+', '-', '>', '<', '.', ',');
 
 	print "REPL Mode\n";
 	print "=========\n\n";
@@ -42,7 +41,7 @@ sub repl {
 		$key = getkey();
 		next if $key eq "Q" or $key eq "q";
 
-		execute($key) if any { $key eq $_ } @validkeys;
+		execute($key) if $validkeys{$key};
 		system 'clear';
 		print "REPL Mode\n";	
 		print "=========\n\n";
