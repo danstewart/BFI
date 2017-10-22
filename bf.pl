@@ -37,18 +37,17 @@ sub repl {
 	print "REPL Mode\n";
 	print "=========\n\n";
 	print displaycells() . "\n\n";
-	while ($key ne 'Q' and $key ne 'q') {
-		$key = getkey();
-		next if $key eq "Q" or $key eq "q";
-
+	do {
 		execute($key) if $validkeys{$key};
 		system 'clear';
 		print "REPL Mode\n";	
 		print "=========\n\n";
 		print displaycells() . "\n\n";
 
-		print $keyhistory .= $key;
-	}
+		print $keyhistory .= $key if $key;
+
+		$key = getkey();
+	} while (lc $key ne 'q');
 }
 
 print "Hello! Welcome to the BrainFuck Interpretor!\n";
