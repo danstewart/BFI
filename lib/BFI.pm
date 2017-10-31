@@ -4,10 +4,10 @@ package BFI;
 
 use strict;
 use warnings;
-use List::Util qw/max/;
+use 5.6.0; # for 'our'
 
 use Exporter qw/import/;
-our @EXPORT_OK = qw/execute displaycells resetcells/;
+our @EXPORT_OK = qw/execute resetcells/;
 
 # INSTRUCTIONS
 #-------------------------------
@@ -20,7 +20,7 @@ our @EXPORT_OK = qw/execute displaycells resetcells/;
 # [ : jump to ']' if current cell is 0, else go to next command
 # ] : jump back to '[' if current cell is greater than 0, else go to next command
 
-my %cells;
+our %cells;
 $cells{$_} = 0 for (0..10);
 my $pos = 0;
 my $output = "";
@@ -82,45 +82,6 @@ sub execute {
 sub resetcells {
 	undef %cells;
 	$cells{$_} = 0 for (0..10);
-}
-
-sub pad {
-	# TODO: Would be cool to centre or left align
-	my ($input, $fill, $width) = @_;
-	return $input . ($fill x ($width - length($input)));
-}
-
-sub displaycells {
-	my $indexes = "Cell  |";
-	my $values  = "Value |";
-	my $chars   = "ASCII |";
-	my $breaks  = "------|";
-
-	# This is used to convert chars that don't display correctly
-	# Or mess up the table (like new lines)
-	my %symbols = (
-		0  => "NUL", 1  => "SOH", 2  => "STX", 3  => "ETX", 4 => "EOT",
-		5  => "ENQ", 6  => "ACK", 7  => "BEL", 8  => "BS",  9 => "HT",
-		10 => "LF",  11 => "VT",  12 => "FF",  13 => "CR",  14 => "SO",
-		15 => "SI",  16 => "DLE", 17 => "DC1", 18 => "DC2", 19 => "DC3",
-		20 => "DC4", 21 => "NAK", 22 => "SYN", 23 => "ETB", 24 => "CAN",
-		25 => "EM",  26 => "SUB", 27 => "ESC", 28 => "FS",  29 => "GS",
-		30 => "RS",  31 => "US"
-	);
-
-	foreach my $cell (sort {$a <=> $b } keys %cells) {
-		my $value = $cells{$cell};
-		my $ascii = $value < 32 ? $symbols{$value} : chr($cells{$cell});
-
-		my $width = max(length $value, length $cell, length $ascii);
-
-		$indexes .= pad($cell,  " ", $width) . "|";
-		$values  .= pad($value, " ", $width) . "|";
-		$chars   .= pad($ascii, " ", $width) . "|";
-		$breaks  .= pad("",     "-", $width) . "|";
-	}
-
-  return join "\n", ($indexes, $breaks, $values, $breaks, $chars);
 }
 
 1;

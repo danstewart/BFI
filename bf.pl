@@ -3,13 +3,9 @@
 use strict;
 use warnings;
 use lib 'lib';
-use BFI qw/execute displaycells resetcells/;
+use BFI qw/execute resetcells/;
 use Term::ReadKey;
-
-# TODO: the displaycells sub probably belongs
-# here rather than in the BFI package.
-# The BFI package should only contain brainfuck
-# processing logic.
+use List::Util qw/max/;
 
 sub getkey {
 	ReadMode 4;
@@ -36,18 +32,59 @@ sub repl {
 
 	print "REPL Mode\n";
 	print "=========\n\n";
-	print displaycells() . "\n\n";
+	print displaycells(\%BFI::cells) . "\n\n";
 	do {
 		execute($key) if $validkeys{$key};
 		system 'clear';
-		print "REPL Mode\n";	
+		print "REPL Mode\n";
 		print "=========\n\n";
-		print displaycells() . "\n\n";
+		print displaycells(\%BFI::cells) . "\n\n";
 
 		print $keyhistory .= $key if $key;
 
 		$key = getkey();
 	} while (lc $key ne 'q');
+}
+
+sub displaycells {
+	my $cells = shift;
+
+	my $indexes = "Cell  |";
+	my $values  = "Value |";
+	my $chars   = "ASCII |";
+	my $breaks  = "------|";
+
+	# This is used to convert chars that don't display correctly
+	# Or mess up the table (like new lines)
+	my %symbols = (
+		0  => "NUL", 1  => "SOH", 2  => "STX", 3  => "ETX", 4 => "EOT",
+		5  => "ENQ", 6  => "ACK", 7  => "BEL", 8  => "BS",  9 => "HT",
+		10 => "LF",  11 => "VT",  12 => "FF",  13 => "CR",  14 => "SO",
+		15 => "SI",  16 => "DLE", 17 => "DC1", 18 => "DC2", 19 => "DC3",
+		20 => "DC4", 21 => "NAK", 22 => "SYN", 23 => "ETB", 24 => "CAN",
+		25 => "EM",  26 => "SUB", 27 => "ESC", 28 => "FS",  29 => "GS",
+		30 => "RS",  31 => "US"
+	);
+
+	foreach my $cell (sort {$a <=> $b } keys %$cells) {
+		my $value = $cells->{$cell};
+		my $ascii = $value < 32 ? $symbols{$value} : chr($cells->{$cell});
+
+		my $width = max(length $value, length $cell, length $ascii);
+
+		$indexes .= pad($cell,  " ", $width) . "|";
+		$values  .= pad($value, " ", $width) . "|";
+		$chars   .= pad($ascii, " ", $width) . "|";
+		$breaks  .= pad("",     "-", $width) . "|";
+	}
+
+  return join "\n", ($indexes, $breaks, $values, $breaks, $chars);
+}
+
+sub pad {
+	# TODO: Would be cool to centre or left align
+	my ($input, $fill, $width) = @_;
+	return $input . ($fill x ($width - length($input)));
 }
 
 print "Hello! Welcome to the BrainFuck Interpretor!\n";
@@ -64,7 +101,7 @@ while ($key ne 'Q' and $key ne 'q') {
 		my $result = execute($line);
 		print "Output: " . $result . "\n" if $result;
 	} elsif ($key eq 'D' or $key eq 'd') {
-		print "\n" . displaycells() . "\n";
+		print "\n" . displaycells(\%BFI::cells) . "\n";
 	} elsif ($key eq 'R' or $key eq 'r') {
 		resetcells();
 	} elsif ($key eq '?') {
