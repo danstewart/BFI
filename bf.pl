@@ -23,16 +23,11 @@ sub getline {
 }
 
 sub repl {
-	# TODO: Tidy to avoid having to print before loop and in loop
-	# TODO: Tidy to avoid having to next if key is Q
 	# TODO: Add a marker for the current cell (Will be a change to displaycells)
 	my $key = "";
 	my $keyhistory = "";
 	my %validkeys = map { $_ => 1} ('+', '-', '>', '<', '.', ',');
 
-	print "REPL Mode\n";
-	print "=========\n\n";
-	print displaycells(\%BFI::cells) . "\n\n";
 	do {
 		execute($key) if $validkeys{$key};
 		system 'clear';
