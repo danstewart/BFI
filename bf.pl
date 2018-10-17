@@ -17,7 +17,8 @@ sub getkey {
 sub getline {
 	ReadMode 0;
 	my $line;
-	while (not defined ($line = ReadLine(0))) { }
+	# Blank lines preceding actual code input will be ignored
+	until ( ($line = ReadLine(0) ) && $line =~ /\S/) { }
 	chomp $line;
 	return $line;
 }
@@ -90,7 +91,6 @@ while ($key ne 'Q' and $key ne 'q') {
 
 	if ($key eq 'E' or $key eq 'e') {
 		# TODO: Allow line breaks
-		#       Maybe accept input after 1 or 2 blank lines
 		print "Please enter your code: \n";
 		my $line = getline();
 		my $result = execute($line);
