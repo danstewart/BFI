@@ -90,6 +90,7 @@ while ($key ne 'Q' and $key ne 'q') {
 	$key = getkey();
 
 	if ($key eq 'E' or $key eq 'e') {
+		# TODO: Allow line breaks
 		print "Please enter your code: \n";
 		my $line = getline();
 		my $result = execute($line);
