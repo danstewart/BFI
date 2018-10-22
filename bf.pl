@@ -21,9 +21,9 @@ sub getlines {
 	# A blank line once code has started will trigger code execution
 	while ($line = ReadLine(0)) {
 		if ($line =~ /\S/) {
-				chomp $line;
-				$lines .= $line;
-				$got_code = 1;
+			chomp $line;
+			$lines .= $line;
+			$got_code = 1;
 		} else {
 			return $lines if ($got_code);
 		}
