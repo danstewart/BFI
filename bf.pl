@@ -14,13 +14,20 @@ sub getkey {
 	return $key;
 }
 
-sub getline {
+sub getlines {
 	ReadMode 0;
-	my $line;
+	my ($line, $lines, $got_code);
 	# Blank lines preceding actual code input will be ignored
-	until ( ($line = ReadLine(0) ) && $line =~ /\S/) { }
-	chomp $line;
-	return $line;
+	# A blank line once code has started will trigger code execution
+	while ($line = ReadLine(0)) {
+		if ($line =~ /\S/) {
+			chomp $line;
+			$lines .= $line;
+			$got_code = 1;
+		} else {
+			return $lines if ($got_code);
+		}
+	}
 }
 
 sub repl {
@@ -90,9 +97,8 @@ while ($key ne 'Q' and $key ne 'q') {
 	$key = getkey();
 
 	if ($key eq 'E' or $key eq 'e') {
-		# TODO: Allow line breaks
 		print "Please enter your code: \n";
-		my $line = getline();
+		my $line = getlines();
 		my $result = execute($line);
 		print "Output: " . $result . "\n" if $result;
 	} elsif ($key eq 'D' or $key eq 'd') {
