@@ -32,9 +32,17 @@ sub in {
 	$cells{$pos} = ord($input);
 }
 
+# 8-bit cell size is traditional and still the most common (says Wikipedia).
+# Some BF test programs (including some in this module's tests) assume this.
+# + and - operations therefore constrained to a 0 - 255 value range.
 my %symbolmap = (
-  '+' => sub { $cells{$pos}++ },
-	'-' => sub { $cells{$pos}-- if $cells{$pos} },
+  '+' => sub { $cells{$pos}++;
+	              $cells{$pos} = 0 if ($cells{$pos} > 255);
+	            },
+	'-' => sub { ($cells{$pos} == 0) ?
+	              $cells{$pos} = 255 :
+	              $cells{$pos}--;
+	            },
 	'>' => sub { $pos++; $cells{$pos} = 0 if not defined $cells{$pos} },
 	'<' => sub { $pos-- if $pos },
 	'.' => sub { $output .= chr $cells{$pos} },
@@ -52,24 +60,30 @@ sub execute {
 	while ($commandindex <= $#commands) {
 		my $command = $commands[$commandindex];
 
-	  if ($skiploop){
-			$skiploop = 0 if $command eq ']';
-			next;
-	  }
-
 	  if ($symbolmap{$command}){
-		  $symbolmap{$command}->();
+		  $symbolmap{$command}->() unless ($skiploop);
 	  } elsif ($command eq '[') {
-			if ($cells{$pos}){
+			if ($skiploop) {
+				# May pass through new, nested [] during skiploop
+				# Need to keep track 
+				$skiploop++;
+			} elsif ($cells{$pos}){
 				push @markers, $commandindex;
 			} else {
 				$skiploop = 1;
 			}
 	  } elsif ($command eq ']') {
-			if ($cells{$pos}) {
+			if ($skiploop) {
+				$skiploop--;
+			} elsif ($cells{$pos}) {
 				# Jump back to start of loop
 				$commandindex = pop @markers;
 				next;
+			} else {
+				# The [] that is ending may be inside a [] that has more loops to do.
+				# Important to pop the inner []'s commandindex, so control
+				# returns to the outer [ when the outer ] is subsequently enountered.
+				pop @markers;
 			}
 		}
 
